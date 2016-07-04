@@ -27,16 +27,17 @@ target_link_libraries(connectcm
     ${TELEPATHY_QT5_SERVICE_LIBRARIES}
 )
 
-install (TARGETS connectcm DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+install (TARGETS connectcm DESTINATION ${KDE_INSTALL_LIBEXECDIR})
 
 file(WRITE ${CMAKE_BINARY_DIR}/org.freedesktop.Telepathy.ConnectionManager.kdeconnect.service "[D-BUS Service]
 Name=org.freedesktop.Telepathy.ConnectionManager.kdeconnect
 Exec=${KDE_INSTALL_FULL_LIBEXECDIR}/connectcm
 ")
 
-install(FILES ${CMAKE_BINARY_DIR}/org.freedesktop.Telepathy.ConnectionManager.kdeconnect.service DESTINATION share/dbus-1/services)
+install(FILES ${CMAKE_BINARY_DIR}/org.freedesktop.Telepathy.ConnectionManager.kdeconnect.service
+        DESTINATION ${KDE_INSTALL_DBUSSERVICEDIR})
 
 install(
     FILES kdeconnect.manager
-    DESTINATION share/telepathy/managers
+    DESTINATION ${KDE_INSTALL_DATADIR}/telepathy/managers
 )
