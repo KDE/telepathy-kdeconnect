@@ -35,6 +35,7 @@ public:
     Tp::UIntList requestHandles(uint handleType, const QStringList &identifiers, Tp::DBusError *error);
 
     Tp::ContactAttributesMap getContactListAttributes(const QStringList &interfaces, bool hold, Tp::DBusError *error);
+    void requestSubscription(const Tp::UIntList &handles, const QString &message, Tp::DBusError *error);
     Tp::ContactAttributesMap getContactAttributes(const Tp::UIntList &handles, const QStringList &interfaces, Tp::DBusError *error);
 
     Tp::SimplePresence getPresence(uint handle);

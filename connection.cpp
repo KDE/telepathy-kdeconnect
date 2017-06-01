@@ -30,7 +30,7 @@ Tp::SimpleStatusSpecMap ConnectConnection::getSimpleStatusSpecMap()
     Tp::SimpleStatusSpec spAvailable;
     spAvailable.type = Tp::ConnectionPresenceTypeAvailable;
     spAvailable.maySetOnSelf = false;
-    spAvailable.canHaveMessage = true;
+    spAvailable.canHaveMessage = false;
 
     Tp::SimpleStatusSpec spOffline;
     spOffline.type = Tp::ConnectionPresenceTypeOffline;
@@ -63,7 +63,10 @@ ConnectConnection::ConnectConnection(const QDBusConnection &dbusConnection, cons
     /* Connection.Interface.ContactList */
     contactListIface = Tp::BaseConnectionContactListInterface::create();
     contactListIface->setGetContactListAttributesCallback(Tp::memFun(this, &ConnectConnection::getContactListAttributes));
-//    contactListIface->setRequestSubscriptionCallback(Tp::memFun(this, &ConnectConnection::requestSubscription));
+    contactListIface->setContactListPersists(true);
+    contactListIface->setCanChangeContactList(false); // There is currently no pushing of contacts back to the phone
+    contactListIface->setRequestUsesMessage(false);
+    contactListIface->setRequestSubscriptionCallback(Tp::memFun(this, &ConnectConnection::requestSubscription));
     plugInterface(Tp::AbstractConnectionInterfacePtr::dynamicCast(contactListIface));
 
     /* Connection.Interface.Requests */
@@ -221,11 +224,23 @@ Tp::ContactAttributesMap ConnectConnection::getContactAttributes(const Tp::UIntL
             QVariantMap attributes;
             attributes["org.freedesktop.Telepathy.Connection/contact-id"] = m_handles.value(handle);
 
-            if (handle != selfHandle() && interfaces.contains("org.freedesktop.Telepathy.Connection.Interface.ContactList")) {
-                attributes["org.freedesktop.Telepathy.Connection.Interface.ContactList/subscribe"] = Tp::SubscriptionStateYes;
-                attributes["org.freedesktop.Telepathy.Connection.Interface.ContactList/publish"] = Tp::SubscriptionStateYes;
-                attributes["org.freedesktop.Telepathy.Connection.Interface.SimplePresence/presence"] = QVariant::fromValue(getPresence(handle));
+            if (handle == selfHandle())
+            {
+                contactAttributes[handle] = attributes;
+                continue;
             }
+
+            if (interfaces.contains(TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST))
+            {
+                attributes[TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST + QLatin1String("/subscribe")] = Tp::SubscriptionStateYes;
+                attributes[TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST + QLatin1String("/publish")] = Tp::SubscriptionStateYes;
+            }
+
+            if (interfaces.contains(TP_QT_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE))
+            {
+                attributes[TP_QT_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE + QLatin1String("/presence")] = QVariant::fromValue(getPresence(handle));
+            }
+
             contactAttributes[handle] = attributes;
         }
     }
@@ -233,9 +248,23 @@ Tp::ContactAttributesMap ConnectConnection::getContactAttributes(const Tp::UIntL
 }
 
 /**
+ * Since CanChangeContactList is set to false, this method must return Not Implemented
+ *
+ * RequestSubscription doesn't make much sense for SMS anyway
+ */
+void ConnectConnection::requestSubscription(const Tp::UIntList &handles, const QString &message, Tp::DBusError *error)
+{
+    error->set(QLatin1String("RequestSubscription.Error.NotImplemented"), QLatin1String(""));
+    return;
+}
+
+/**
  * Sets the presence (Online, away, snooze, etc.) of a contact
  *
  * Since SMS does not have the concept of online/offline, etc. this method does nothing
+ *
+ * SimplePresence mentions the possibility of a "phone number" contact, but I can't figure out anything more:
+ * https://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description
  */
 Tp::SimplePresence ConnectConnection::getPresence(uint handle)
 {
