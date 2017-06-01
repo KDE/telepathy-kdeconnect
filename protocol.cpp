@@ -26,9 +26,9 @@
 KDEConnectTelepathyProtocol::KDEConnectTelepathyProtocol(const QDBusConnection &dbusConnection, const QString &name)
     : BaseProtocol(dbusConnection, name)
 {
-//     setParameters(Tp::ProtocolParameterList()
-//                   << Tp::ProtocolParameter(QLatin1String("device_id"), QLatin1String("s"), Tp::ConnMgrParamFlagRequired)
-//                   << Tp::ProtocolParameter(QLatin1String("self_name"), QLatin1String("s"), 0));
+    setParameters(Tp::ProtocolParameterList()
+                    << Tp::ProtocolParameter(QLatin1String("device_id"), QLatin1String("s"), Tp::ConnMgrParamFlagRequired)
+                    << Tp::ProtocolParameter(QLatin1String("self_name"), QLatin1String("s"), 0));
 
     setRequestableChannelClasses(Tp::RequestableChannelClassSpecList() << Tp::RequestableChannelClassSpec::textChat());
 
@@ -38,15 +38,16 @@ KDEConnectTelepathyProtocol::KDEConnectTelepathyProtocol(const QDBusConnection &
     setNormalizeContactCallback(memFun(this, &KDEConnectTelepathyProtocol::normalizeContact));
 
     addrIface = Tp::BaseProtocolAddressingInterface::create();
-    addrIface->setAddressableVCardFields(QStringList() << QLatin1String("x-example-vcard-field"));
-    addrIface->setAddressableUriSchemes(QStringList() << QLatin1String("example-uri-scheme"));
+    addrIface->setAddressableVCardFields(QStringList() << QLatin1String("tel"));
+    addrIface->setAddressableUriSchemes(QStringList() << QLatin1String("tel") << QLatin1String("sms"));
     addrIface->setNormalizeVCardAddressCallback(memFun(this, &KDEConnectTelepathyProtocol::normalizeVCardAddress));
     addrIface->setNormalizeContactUriCallback(memFun(this, &KDEConnectTelepathyProtocol::normalizeContactUri));
     plugInterface(Tp::AbstractProtocolInterfacePtr::dynamicCast(addrIface));
-/*
+
+
     presenceIface = Tp::BaseProtocolPresenceInterface::create();
-    presenceIface->setStatuses(Tp::PresenceSpecList(ConnectConnection::getConnectStatusSpecMap()));
-    plugInterface(Tp::AbstractProtocolInterfacePtr::dynamicCast(presenceIface));*/
+    presenceIface->setStatuses(ConnectConnection::getSimpleStatusSpecMap());
+    plugInterface(Tp::AbstractProtocolInterfacePtr::dynamicCast(presenceIface));
 
     auto bus = QDBusConnection::sessionBus();
     bus.registerObject("/kdeconnect", this, QDBusConnection::ExportAllSignals | QDBusConnection::ExportAllSlots);
@@ -103,6 +104,13 @@ QString KDEConnectTelepathyProtocol::normalizeContact(const QString &contactId, 
     return QString();
 }
 
+/**
+ * Called when a VCard address should be turned into canonical form
+ * https://telepathy.freedesktop.org/spec/Protocol_Interface_Addressing.html#Method:NormalizeVCardAddress
+ *
+ * @param vcardField The type of VCard to be normalized
+ * @param vcardAddress The address which should be normalized
+ */
 QString KDEConnectTelepathyProtocol::normalizeVCardAddress(const QString &vcardField, const QString vcardAddress,
         Tp::DBusError *error)
 {
@@ -111,6 +119,11 @@ QString KDEConnectTelepathyProtocol::normalizeVCardAddress(const QString &vcardF
     return QString();
 }
 
+/**
+ * Called when a contact URI should be normalized
+ * This probably does not make sense in terms of telepathy-kdeconnect
+ * https://telepathy.freedesktop.org/spec/Protocol_Interface_Addressing.html#Method:NormalizeContactURI
+ */
 QString KDEConnectTelepathyProtocol::normalizeContactUri(const QString &uri, Tp::DBusError *error)
 {
     qDebug() << Q_FUNC_INFO << uri;

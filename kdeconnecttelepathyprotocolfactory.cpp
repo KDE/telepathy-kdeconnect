@@ -20,9 +20,9 @@ Tp::WeakPtr<KDEConnectTelepathyProtocol> KDEConnectTelepathyProtocolFactory::s_i
 
 ConnectProtocolPtr KDEConnectTelepathyProtocolFactory::interface() {
     if (s_interface.isNull()) {
-        Tp::registerTypes();
-        Tp::enableWarnings(true);
 
+        // Note that specifying QDBusConnection::sessionBus() is the same as not
+        // specifying it
         ConnectProtocolPtr protocol = Tp::BaseProtocol::create<KDEConnectTelepathyProtocol>(
                 QDBusConnection::sessionBus(),
                 QLatin1String("kdeconnect"));
@@ -52,18 +52,23 @@ ConnectProtocolPtr KDEConnectTelepathyProtocolFactory::interface() {
            if (!accounts) {
                return;
            }
+           QVariantMap parameters;
+           parameters["device_id"] = "Dummy Device ID";
            if (accounts->accounts().isEmpty()) {
-                Tp::PendingAccount* pa = am->createAccount("kdeconnect", "kdeconnect", "kdeconnect", QVariantMap(), QVariantMap());
+                Tp::PendingAccount* pa = am->createAccount("kdeconnect", "kdeconnect", "kdeconnect", parameters, QVariantMap());
                 QObject::connect(pa, &Tp::PendingOperation::finished, pa, [pa](){
                     if (pa->isError() || !pa->account()) {
                         return;
                     }
                     pa->account()->setEnabled(true);
                     pa->account()->setRequestedPresence(Tp::Presence::available());
+                    pa->account()->setConnectsAutomatically(true);
                 });
            } else {
                Tp::AccountPtr account = accounts->accounts().first();
                account->setRequestedPresence(Tp::Presence::available());
+               account->setConnectsAutomatically(true);
+               account->updateParameters(parameters, QStringList());
            }
         });             
     }

@@ -4,5 +4,13 @@ BusName=org.freedesktop.Telepathy.ConnectionManager.kdeconnect
 ObjectPath=/org/freedesktop/Telepathy/ConnectionManager/kdeconnect
 
 [Protocol kdeconnect]
-VCardField=tel
+param device_id=s required
+AddressableVCardFields=tel;
+AddressableURISchemes=tel;sms;
+
+status-offline=1
+status-available=2
+
 EnglishName=KDEConnect
+
+Interfaces=org.freedesktop.Telepathy.Protocol.Interface.Presence;org.freedesktop.Telepathy.Protocol.Interface.Addressing;

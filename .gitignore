@@ -8,3 +8,4 @@ src/*_automoc.cpp*
 src/moc_*.cpp
 CMakeTmp
 CMakeFiles
+doxygen_out/

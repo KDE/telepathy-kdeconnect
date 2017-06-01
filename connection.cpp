@@ -29,12 +29,12 @@ Tp::SimpleStatusSpecMap ConnectConnection::getSimpleStatusSpecMap()
     //Presence
     Tp::SimpleStatusSpec spAvailable;
     spAvailable.type = Tp::ConnectionPresenceTypeAvailable;
-    spAvailable.maySetOnSelf = false;
+    spAvailable.maySetOnSelf = true;
     spAvailable.canHaveMessage = false;
 
     Tp::SimpleStatusSpec spOffline;
     spOffline.type = Tp::ConnectionPresenceTypeOffline;
-    spOffline.maySetOnSelf = false;
+    spOffline.maySetOnSelf = true;
     spOffline.canHaveMessage = false;
 
     Tp::SimpleStatusSpecMap specs;

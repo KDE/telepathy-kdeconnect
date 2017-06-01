@@ -1,4 +1,4 @@
-project(connectcm)
+project(telepathy-kdeconnect)
 
 cmake_minimum_required(VERSION 2.8.12)
 
@@ -13,7 +13,7 @@ include(KDEInstallDirs)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(KDECMakeSettings)
 
-add_executable(connectcm
+add_executable(telepathy-kdeconnect
     main.cpp
     connection.cpp
     protocol.cpp
@@ -21,17 +21,20 @@ add_executable(connectcm
     kdeconnecttelepathyprotocolfactory.cpp
 )
 
-target_link_libraries(connectcm
+target_link_libraries(telepathy-kdeconnect
     Qt5::Core
     ${TELEPATHY_QT5_LIBRARIES}
     ${TELEPATHY_QT5_SERVICE_LIBRARIES}
 )
 
-install (TARGETS connectcm DESTINATION ${KDE_INSTALL_LIBEXECDIR})
+install (
+  TARGETS telepathy-kdeconnect
+  DESTINATION ${KDE_INSTALL_LIBEXECDIR}
+)
 
 file(WRITE ${CMAKE_BINARY_DIR}/org.freedesktop.Telepathy.ConnectionManager.kdeconnect.service "[D-BUS Service]
 Name=org.freedesktop.Telepathy.ConnectionManager.kdeconnect
-Exec=${KDE_INSTALL_FULL_LIBEXECDIR}/connectcm
+Exec=${KDE_INSTALL_FULL_LIBEXECDIR}/telepathy-kdeconnect
 ")
 
 install(FILES ${CMAKE_BINARY_DIR}/org.freedesktop.Telepathy.ConnectionManager.kdeconnect.service
@@ -40,4 +43,9 @@ install(FILES ${CMAKE_BINARY_DIR}/org.freedesktop.Telepathy.ConnectionManager.kd
 install(
     FILES kdeconnect.manager
     DESTINATION ${KDE_INSTALL_DATADIR}/telepathy/managers
+)
+
+install(
+    FILES kdeconnect.profile
+    DESTINATION ${KDE_INSTALL_DATADIR}/telepathy/profiles
 )

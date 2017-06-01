@@ -51,6 +51,7 @@ private:
 
     Tp::BaseProtocolAddressingInterfacePtr addrIface;
     Tp::BaseProtocolAvatarsInterfacePtr avatarsIface;
+    Tp::BaseProtocolPresenceInterfacePtr presenceIface;
 
     QString m_connectionManagerName;
     

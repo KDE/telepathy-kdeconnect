@@ -29,6 +29,11 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+
+    Tp::registerTypes();
+    Tp::enableDebug(true);
+    Tp::enableWarnings(true);
+
     app.setApplicationName(QLatin1String("telepathy-kdeconnect"));
 
     KDEConnectTelepathyProtocolFactory::interface();
