@@ -47,6 +47,10 @@ public Q_SLOTS:
     void setContactList(const QStringList &identifiers);
 
 Q_SIGNALS:
+	/**
+	 * Indicate to anyone who is listening that an SMS has come in.
+	 * This is connected and listened to in kde-connect/plugins/telephony
+	 */
     void messageReceived(const QString &sender, const QString &message);
 
 private:

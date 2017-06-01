@@ -1,5 +1,6 @@
 /*
     Copyright (C) 2014 Alexandr Akulich <akulichalexander@gmail.com>
+    Copyright (C) 2017 Simon Redman <simon@ergotech.com>
 
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -163,6 +164,12 @@ Tp::BaseChannelPtr ConnectConnection::createChannelCB(const QVariantMap &request
     return baseChannel;
 }
 
+/**
+ * Called when the user attempts to add a contact
+ *
+ * @param handleType
+ * @param identifies A list of contacts to add
+ */
 Tp::UIntList ConnectConnection::requestHandles(uint handleType, const QStringList &identifiers, Tp::DBusError *error)
 {
     Tp::UIntList result;
@@ -225,13 +232,35 @@ Tp::ContactAttributesMap ConnectConnection::getContactAttributes(const Tp::UIntL
     return contactAttributes;
 }
 
+/**
+ * Sets the presence (Online, away, snooze, etc.) of a contact
+ *
+ * Since SMS does not have the concept of online/offline, etc. this method does nothing
+ */
 Tp::SimplePresence ConnectConnection::getPresence(uint handle)
 {
+	Q_UNUSED(handle);
+
     return Tp::Presence::offline().barePresence();
 }
 
+/**
+ * Set the presence and message for an account
+ *
+ * Since SMS does not have a concept of presence messages, this method does nothing.
+ *
+ * In the future, it might make sense to have this method look for the user to be not at the
+ * computer, then make sure incoming messages create notifications on the phone
+ *
+ * @param status The new status
+ * @param message The new message
+ */
 uint ConnectConnection::setPresence(const QString &status, const QString &message, Tp::DBusError *error)
 {
+	Q_UNUSED(status);
+	Q_UNUSED(message);
+	Q_UNUSED(error);
+
     return 0;
 }
 
@@ -267,7 +296,13 @@ uint ConnectConnection::addContact(const QString &identifier)
     return addContacts(QStringList() << identifier);
 }
 
-/* Receive message from someone to ourself */
+/**
+ *  Receive message from someone to ourself
+ *
+ *  @param sender The incoming phone number
+ *  @param senderName The incoming contact name reported by the phone
+ *  @param message The incoming message
+ */
 bool ConnectConnection::receiveMessage(const QString &sender, const QString& senderName, const QString &message)
 {
     uint senderHandle, targetHandle;

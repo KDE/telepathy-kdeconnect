@@ -29,7 +29,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    app.setApplicationName(QLatin1String("telepathy-morse"));
+    app.setApplicationName(QLatin1String("telepathy-kdeconnect"));
 
     KDEConnectTelepathyProtocolFactory::interface();
 
